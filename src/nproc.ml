@@ -18,7 +18,7 @@ let report_error msg =
     eprintf "*** Critical error *** Error logger raised an exception:\n%s\n%!"
       (Printexc.to_string e)
 
-let report_info msg =
+let _report_info msg =
   try !log_info msg
   with e ->
     eprintf "%s\n" msg;
@@ -63,7 +63,7 @@ struct
     | Central_res of 'd
 
   (* --worker-- *)
-  (* executed in worker processes right after the fork or in 
+  (* executed in worker processes right after the fork or in
      the master when closing the process pool.
      It closes the master side of the pipes. *)
   let close_worker x =
@@ -83,7 +83,7 @@ struct
   (* Exception raised by f *)
   let user_error1 e =
     sprintf "Exception raised by Nproc task: %s" (!string_of_exn e)
-      
+
   (* Exception raised by g *)
   let user_error2 e =
     sprintf "Error while handling result of Nproc task: exception %s"
@@ -120,7 +120,7 @@ struct
       try
         Marshal.to_channel oc result [Marshal.Closures];
         flush oc
-      with Sys_error "Broken pipe" ->
+      with Sys_error msg when msg = "Broken pipe" ->
         exit 0
     done;
     assert false
@@ -155,7 +155,7 @@ struct
 
   (* --master-- *)
   let pull_task kill_workers in_stream in_stream_mutex central_service worker =
-    (* Note: input and output file descriptors are automatically closed 
+    (* Note: input and output file descriptors are automatically closed
        when the end of the lwt channel is reached. *)
     let ic = Lwt_io.of_fd ~mode:Lwt_io.input worker.worker_in in
     let oc = Lwt_io.of_fd ~mode:Lwt_io.output worker.worker_out in
@@ -182,7 +182,7 @@ struct
            kill_workers ();
            exit 1
         )
-        
+
     and handle_input g = function
         Worker_res result ->
           (try
@@ -234,7 +234,7 @@ struct
 
                with e ->
                  match e with
-                     Start_worker start -> raise e
+                     Start_worker _start -> raise e
                    | _ ->
                        !log_error
                          (sprintf "Uncaught exception in worker (pid %i): %s"
@@ -279,7 +279,7 @@ struct
     in
 
     let jobs =
-      Lwt.join 
+      Lwt.join
         (List.map
            (pull_task kill_workers in_stream in_stream_mutex central_service)
            worker_info)
@@ -296,7 +296,7 @@ struct
       else
         Lwt.return ()
     in
-    
+
     let p = {
       stream = in_stream;
       push = push;
@@ -307,7 +307,7 @@ struct
     in
     p, jobs
 
-  let default_init worker_info = ()
+  let default_init _worker_info = ()
 
   let create ?(init = default_init) nproc central_service worker_data =
     create_gen init (Lwt_stream.create (), Lwt_mutex.create ()) nproc central_service worker_data
@@ -326,7 +326,7 @@ struct
     else
       let waiter, wakener = Lwt.task () in
       let handle_result y = Lwt.wakeup wakener y in
-      p.push 
+      p.push
         (Some (Obj.magic f, Obj.magic x, Obj.magic handle_result));
       waiter
 
@@ -337,7 +337,7 @@ struct
        | Some _ -> Stream.junk x
     );
     o
-      
+
   let lwt_of_stream f g strm =
     Lwt_stream.from (
       fun () ->
@@ -349,7 +349,7 @@ struct
         Lwt.return elt
     )
 
-  type 'a result_or_error = Result of 'a | Error of string 
+  type 'a result_or_error = Result of 'a | Error of string
 
   let iter_stream
       ?(granularity = 1)
@@ -396,7 +396,7 @@ struct
           lwt_of_stream f' g' in_stream'
       in
       let p, t =
-        create_gen init 
+        create_gen init
           ((task_stream,
             (fun _ -> assert false) (* push *)),
            Lwt_mutex.create ())
@@ -430,6 +430,6 @@ let iter_stream ?granularity ?init ~nproc ~f ~g strm =
     ~nproc
     ~env: ()
     ~serv: (fun () -> Lwt.return ())
-    ~f: (fun serv env x -> f x)
+    ~f: (fun _serv _env x -> f x)
     ~g
     strm

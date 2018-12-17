@@ -38,14 +38,14 @@ let fatal_exit_in_f () =
 
 let test_lwt_interface () =
   let l = Array.to_list (Array.init 300 (fun i -> i)) in
-  let p, t = Nproc.create 100 in
+  let p, _t = Nproc.create 100 in
   let acc = ref [] in
   let error_count1 = ref 0 in
   let error_count2 = ref 0 in
   List.iter (
     fun x ->
       ignore (
-        Lwt.bind (Nproc.submit p (fun n -> Unix.sleep 1; (n, -n)) x)
+        Lwt.bind (Nproc.submit p ~f:(fun n -> Unix.sleep 1; (n, -n)) x)
           (function
                Some (x, y) ->
                  if y <> -x then
@@ -83,7 +83,7 @@ let test_stream_interface_gen granularity () =
     ~granularity
     ~nproc: 100
     ~f: (fun n -> Unix.sleep 1; (n, -n))
-    ~g: (function Some (x, y) -> acc := y :: !acc | None -> incr error_count)
+    ~g: (function Some (_x, y) -> acc := y :: !acc | None -> incr error_count)
     strm;
   assert (!error_count = 0);
   assert (List.sort compare (List.map (~-) !acc) = l)
@@ -131,7 +131,7 @@ let test_unstack () =
                Some x -> out_list := x :: !out_list
              | None -> assert false)
       strm;
-    
+
     assert (get_live_words () > 2_000_000);
     ignore (List.hd x);
     assert (List.sort compare !out_list = List.sort compare in_list);

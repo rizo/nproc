@@ -1,0 +1,18 @@
+EXCLUDE_QUERY_DIR
+B /Users/rizo/.opam/4.07.1/lib/bytes
+B /Users/rizo/.opam/4.07.1/lib/lwt
+B /Users/rizo/.opam/4.07.1/lib/lwt/unix
+B /Users/rizo/.opam/4.07.1/lib/ocaml
+B /Users/rizo/.opam/4.07.1/lib/ocaml/threads
+B /Users/rizo/.opam/4.07.1/lib/result
+B ../_build/default/examples/.factorial.eobjs
+B ../_build/default/src/.nproc.objs
+S /Users/rizo/.opam/4.07.1/lib/bytes
+S /Users/rizo/.opam/4.07.1/lib/lwt
+S /Users/rizo/.opam/4.07.1/lib/lwt/unix
+S /Users/rizo/.opam/4.07.1/lib/ocaml
+S /Users/rizo/.opam/4.07.1/lib/ocaml/threads
+S /Users/rizo/.opam/4.07.1/lib/result
+S .
+S ../src
+FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs

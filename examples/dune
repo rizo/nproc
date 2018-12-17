@@ -1,0 +1,6 @@
+
+
+(executable
+  (name factorial)
+  (libraries nproc))
+

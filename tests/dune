@@ -1,0 +1,8 @@
+
+(executable
+  (name test_nproc)
+  (libraries nproc))
+
+(alias
+ (name   runtest)
+ (action (run ./test_nproc.exe)))
