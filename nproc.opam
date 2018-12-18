@@ -8,9 +8,9 @@ bug-reports: "https://github.com/rizo/nproc/issues"
 dev-repo: "https://github.com/rizo/nproc"
 license: "BSD-3-Clause"
 build: [
-  [make]
+  ["dune" "subst"] {pinned}
+  ["dune" "build" "-p" name "-j" jobs]
 ]
-install: [make "install"]
 remove: ["ocamlfind" "remove" "nproc"]
 depends: [
   "ocamlfind" {build}
